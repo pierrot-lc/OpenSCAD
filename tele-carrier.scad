@@ -1,28 +1,47 @@
-RADIUS = 3;
-HEIGHT = 8;
-DEPTH = 2;
+// Measures of the telecommand in centimeters.
+R1 = 3.4/2;         // Small top radius.
+R2 = 3.7/2;         // Big bottom radius.
+L  = 8;             // Total length (includes radius).
+H  = 1.1;           // Total height.
+W = L - R1 - R2;    // Width without the top and bottom circles.
 
-$fn=10;
+// Measures of the carrier in centimeters.
+H_CARRIER = 1.5 * H;                // Total height.
+L_CARRIER = 1.1 * L ;               // Total length (includes radius).
+R1_CARRIER = R1 + R1/10;            // Top radius.
+R2_CARRIER = R2 + R2/5;             // Bottom radius.
+W_CARRIER = L_CARRIER - R1 - R2;    // Width without the top and bottom circles.
+L_OFFSET = L_CARRIER / 10;          // Offset for the hole (x-axis).
+H_OFFSET = 0.20 * H_CARRIER;        // Offset for the hole (z-axis).
+L_LEGS = 0.45 * L_CARRIER;          // Size of the front side.
+R_SCREWS = 0.2;                     // Size of the hole for the screws.
+SCREW_Y_OFFSET = 0.5;               // Offset for the screws hole (y_axis).
 
-module Base2dShape(radius=RADIUS, height=HEIGHT) {
+$fn=30;
+
+module Base2dShape(top_radius, bottom_radius, length) {
     hull() {
-        circle(radius);
-        translate([height, 0, 0]) circle(radius);
+        circle(bottom_radius);
+        translate([length, 0, 0]) circle(top_radius);
     }
 }
 
-module RectangleToRemove(radius=RADIUS, height=HEIGHT, depth=DEPTH) {
-    translate([0, -radius, 0])
-        cube([height+radius, 2 * radius, depth * 2/3]);
+module telecommand(top_radius=R1, bottom_radius=R2, width=W, height=H) {
+    linear_extrude(height) Base2dShape(top_radius, bottom_radius, width);
 }
 
-module main(radius=RADIUS, height=HEIGHT, depth=DEPTH) {
+module carrier() {
+    max_radius = max(R1_CARRIER, R2_CARRIER);
+    legs_offset = L_LEGS - R2_CARRIER;
     difference() {
-        linear_extrude(depth) Base2dShape(radius, height);
-        translate([radius/2, 0, depth*1/3+0.01])
-            RectangleToRemove(radius, height, depth);
-        translate([0, 0, depth*1/3]) linear_extrude(depth/2) circle(radius-0.01);
+        linear_extrude(H_CARRIER) Base2dShape(R1_CARRIER, R2_CARRIER, W_CARRIER);
+        translate([L_OFFSET, 0, H_OFFSET]) telecommand(1.1 * R1, R2, W, 1.1*H);  // Remove slightly bigger telecommand.
+        translate([legs_offset, -max_radius, H_OFFSET]) cube([L_CARRIER, 2 * max_radius, H_CARRIER]);  // Make legs.
+        translate([0.7 * W_CARRIER, SCREW_Y_OFFSET, -0.1 * H_CARRIER]) cylinder(2 * H_OFFSET, r=R_SCREWS);  // Left screw.
+        translate([0.7 * W_CARRIER, -SCREW_Y_OFFSET, -0.1 * H_CARRIER]) cylinder(2 * H_OFFSET, r=R_SCREWS);  // Right screw.
     }
 }
 
-main();
+// main();
+// # translate([L_OFFSET, 0, H_OFFSET]) telecommand();
+carrier();
