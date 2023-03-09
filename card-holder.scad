@@ -1,13 +1,18 @@
-// C = Card
-// CH = Card Holder
-// W, H, D = Width, Height, Depth
+/* Card holder constants. */
 W_CH = 10;
 H_CH = 2;
 D_CH = 3;
-W_OFFSET_CH = 0.7;
+W_OFFSET_CH = 2;
 H_OFFSET_CH = 1;
 
+/* Sink constants */
+W_C = 8;
+H_C = 2;
+D_C = 1;
+H_OFFSET_C = 1;
 
+/* The base of the card holder.
+*/
 module base(w, h, d, wo, ho) {
     points = [
         [0, 0],
@@ -27,4 +32,15 @@ module base(w, h, d, wo, ho) {
     }
 }
 
-base(W_CH, H_CH, D_CH, W_OFFSET_CH, H_OFFSET_CH);
+/* The square to remove from the base.
+*/
+module sink(w, h, d, ho) {
+    translate([0, 0, 3/2 * ho])
+    cube([w, d, h], center=true);
+}
+
+
+difference() {
+    base(W_CH, H_CH, D_CH, W_OFFSET_CH, H_OFFSET_CH);
+    sink(W_C, H_C, D_C, H_OFFSET_C);
+}
