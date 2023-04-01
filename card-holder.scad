@@ -1,14 +1,14 @@
 /* Card holder constants. */
-W_CH = 10;
-H_CH = 2;
+W_CH = 13;
+H_CH = 3;
 D_CH = 3;
 W_OFFSET_CH = 2;
 H_OFFSET_CH = 1;
 
 /* Sink constants */
-W_C = 8;
+W_C = 10.2;
 H_C = 2;
-D_C = 1;
+D_C = 0.4;
 H_OFFSET_C = 1;
 
 /* The base of the card holder.
@@ -20,7 +20,7 @@ module base(w, h, d, wo, ho) {
         [0, h],
         [w, h],
         [wo, ho],
-        [w - wo, h - ho],
+        [w - wo, ho],
     ];
 
     path = [0, 1, 3, 5, 4, 2];
